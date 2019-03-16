@@ -10,34 +10,40 @@ $(document).ready(function() {
   };
   firebase.initializeApp(config);
   var dB = firebase.database();
+  // update time every 10 seconds
+  updateTime();
+  let updateinterval = setInterval(updateTime, 10000);
+  function updateTime() {
+    $("#trainList").empty();
+    dB.ref("trainTime").on("child_added", function(snap) {
+      let name = snap.val().name;
+      let destination = snap.val().destination;
+      let initialTrip = snap.val().initialTrip;
+      let tripFrequency = snap.val().tripFrequency;
+      let track = snap.val().track;
+      let now = moment().format("h:mm a");
+      $("#now").text(`The time is now ${now}`);
+      let initialTripPastTense = moment(initialTrip, "HH:mm").subtract(
+        1,
+        "years"
+      );
+      let deltaTime = moment().diff(moment(initialTripPastTense), "minutes");
+      let moduloTime = deltaTime % tripFrequency;
+      let minutesAway = tripFrequency - moduloTime;
+      let nextArrival = moment()
+        .add(minutesAway, "minutes")
+        .format("h:mm a");
 
-  dB.ref("trainTime").on("child_added", function(snap) {
-    let name = snap.val().name;
-    let destination = snap.val().destination;
-    let initialTrip = snap.val().initialTrip;
-    let tripFrequency = snap.val().tripFrequency;
-    let track = snap.val().track;
-    let now = moment().format("h:mm a");
-    $("#now").text(`The time is now ${now}`);
-    let initialTripPastTense = moment(initialTrip, "HH:mm").subtract(
-      1,
-      "years"
-    );
-    let deltaTime = moment().diff(moment(initialTripPastTense), "minutes");
-    let moduloTime = deltaTime % tripFrequency;
-    let minutesAway = tripFrequency - moduloTime;
-    let nextArrival = moment()
-      .add(minutesAway, "minutes")
-      .format("h:mm a");
-    let postTrain = $("<tr>")
-      .append($("<td>").text(name))
-      .append($("<td>").text(destination))
-      .append($("<td>").text(tripFrequency))
-      .append($("<td>").text(nextArrival))
-      .append($("<td>").text(minutesAway))
-      .append($("<td>").text(track));
-    $("#trainList").append(postTrain);
-  });
+      let postTrain = $("<tr>")
+        .append($("<td>").text(name))
+        .append($("<td>").text(destination))
+        .append($("<td>").text(tripFrequency))
+        .append($("<td>").text(nextArrival))
+        .append($("<td>").text(minutesAway))
+        .append($("<td>").text(track));
+      $("#trainList").append(postTrain);
+    });
+  }
 
   $(document).on("click", "#makeItSo", function(e) {
     e.preventDefault();
