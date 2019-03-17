@@ -10,6 +10,30 @@ $(document).ready(function() {
   };
   firebase.initializeApp(config);
   var dB = firebase.database();
+
+  // WORKING ON USER AUTHENTICATION~vv
+  uiConfig = {
+    signInSuccessUrl: "<url-to-redirect-to-on-success>",
+    signInOptions: [
+      // Leave the lines as is for the providers you want to offer your users.
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.GithubAuthProvider.PROVIDER_ID
+    ],
+    // tosUrl and privacyPolicyUrl accept either url string or a callback
+    // function.
+    // Terms of service url/callback.
+    tosUrl: "<your-tos-url>",
+    // Privacy policy url/callback.
+    privacyPolicyUrl: function() {
+      window.location.assign("<your-privacy-policy-url>");
+    }
+  };
+  var ui = new firebaseui.auth.AuthUI(firebase.auth());
+  // The start method will wait until the DOM is loaded.
+  ui.start("#firebaseui-auth-container", uiConfig);
+  // WORKING ON USER AUTHENTICATION~^^
+
+  //   Thanks to tutor Brian Ngobidi for walking me through the global flags and firebase reference keys required for the (update details /remove train) functionality
   //   global flag to handle whether train is being updated or pushed
   var updateEntry = false;
   //   global flag to handle firebase key for train updates or removal
